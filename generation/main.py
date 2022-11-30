@@ -3,9 +3,9 @@ import time
 import datetime 
 import os 
 import pandas as pd
-import py_parser 
+import pyparser 
 import numpy as np 
-import label_perturbation_main
+from . import label_perturbation_main
 
 
 def giveTimeStamp():
