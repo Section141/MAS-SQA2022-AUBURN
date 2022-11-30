@@ -3,13 +3,14 @@ from typing import List,Any
 
 import numpy as np
 
-from label_perturbation_attack.knn import euc_dist, predict
-from label_perturbation_attack.main import call_loss, call_prob
-from generation.main import generateUnitTest   
+from select_repos.dev_count import getDevEmailForCommit, getDevCount
+from detection.main import runDetectionTest
+from label_perturbation_attack import label_flip_perturbation
+from generation.main import generateAttack  
 
 
-def fuzzer(method, fuzzed_args: List[Any]):
-    for args in fuzzed_args:
+def fuzzer(method, fuzzer_args: List[Any]):
+    for fuzz in fuzzer_args:
         try:
             result = method(*args)
         except Exception:
@@ -20,39 +21,38 @@ def fuzzer(method, fuzzed_args: List[Any]):
 
 
 if __name__ == "__main__":
-    fuzz_targets = [
+    fuzz_list = [
         (
-            generateTest, [
-                (None, Null),
+            generateAttack, [
+                (None,0),
                 (1, 22),
                 ([], {}),
                 (1.23, 4.56),
                 ("string", "bad-name"),
             ]
-        ),
-        (
-                dist, [
-                (None, Null),
-                ("bad", "argument"),
+        ), (
+                getDevEmailForCommit, [
+                (None, 0),
+                ("bad-argument", "error"),
                 ([], {}),
                 (int("inf"), int("inf")),
                 (float("-inf"), float("-inf")),
-                (4l, 1i),
+                ("4l", "1i"),
                 ]
         ),
         (
-            predict, [
+            getDevCount, [
                 ([]),
-                (None, 0011),
-                (Null, 1.0000),
-                (Null, "bad"),
-                (None, [None, Null]),
-                (Null, {}),
-                (Null, np((1, 50))),
+                (None, 1),
+                (None, 1.0000),
+                (None, "error-argument"),
+                (None, [None, 0]),
+                (0, {}),
+                (12, np((1, 50))),
             ]
         ),
         (
-            call_loss, [
+            runDetectionTest, [
                 (None,),
                 (0,),
                 (1.0,),
@@ -62,7 +62,7 @@ if __name__ == "__main__":
             ]
         ),
         (
-            call_prob, [
+            label_flip_perturbation, [
                 (0, 0, None,),
                 (None, None, 0,),
                 ("doesnt", "matter", 1.0,),
@@ -72,5 +72,5 @@ if __name__ == "__main__":
             ]
         )
     ]
-    for method, fuzzed_args in fuzz_targets:
-        fuzzer(method, fuzzed_args)
+    for fuzz , fuzzer_args in fuzz_list:
+        fuzzer(fuzz, fuzzer_args)
