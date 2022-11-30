@@ -3,7 +3,7 @@ import time
 import datetime 
 import os 
 import pandas as pd
-import py_parser 
+import pyparser 
 import numpy as np 
 
 
@@ -15,9 +15,9 @@ def giveTimeStamp():
 def get_test_details(test_script):
     test_name_list = []
     test_with_assert_list = []
-    py_tree = py_parser.getPythonParseObject(test_script)
+    py_tree = pyparser.getPythonParseObject(test_script)
 #     print(test_script)
-    func_assert_parameter_list  = py_parser.getTestNames( py_tree ) 
+    func_assert_parameter_list  = pyparser.getTestNames( py_tree ) 
     for func_ in func_assert_parameter_list:
 #         print("###############")
 #         print(func_) 
@@ -34,8 +34,8 @@ def get_test_details(test_script):
 
 def checkClassificationAlgoTest(test_script):
     print("algo check: ", test_script)
-    py_tree = py_parser.getPythonParseObject(test_script)
-    classification_algo_list = py_parser.getClassificationAlgoNames( py_tree ) 
+    py_tree = pyparser.getPythonParseObject(test_script)
+    classification_algo_list = pyparser.getClassificationAlgoNames( py_tree ) 
     if len(classification_algo_list) > 0:
         return 0
     else:
@@ -44,8 +44,8 @@ def checkClassificationAlgoTest(test_script):
   
 def checkAccuracyTest(test_script):
     print("metric check: ", test_script)
-    py_tree = py_parser.getPythonParseObject(test_script)
-    metric_list = py_parser.getMetricNames( py_tree ) 
+    py_tree = pyparser.getPythonParseObject(test_script)
+    metric_list = pyparser.getMetricNames( py_tree ) 
     if len(metric_list) > 0:
         return 0
     else:
@@ -55,8 +55,8 @@ def checkAccuracyTest(test_script):
 def chackAttackTest(test_script, assert_list):
     attack_check = []
     print("attack check: ", test_script)
-    py_tree = py_parser.getPythonParseObject(test_script)
-    metric_check_list = py_parser.getmetricLHSNames( py_tree )
+    py_tree = pyparser.getPythonParseObject(test_script)
+    metric_check_list = pyparser.getmetricLHSNames( py_tree )
     for item in metric_check_list:
         for assert_item in assert_list:
             if item in assert_item[2]:
