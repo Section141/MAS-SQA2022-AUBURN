@@ -1,4 +1,4 @@
-name: Commit Validation
+name: Commit verification
 on:
   workflow_dispatch:
   push:
