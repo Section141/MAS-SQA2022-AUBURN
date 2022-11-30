@@ -5,14 +5,14 @@ import numpy as np
 
 from select_repos.dev_count import getDevEmailForCommit, getDevCount
 from detection.main import runDetectionTest
-from label_perturbation_attack import label_flip_perturbation
+from label_perturbation_attack.loss_based_label_perturbation import label_flip_perturbation
 from generation.main import generateAttack  
 
 
 def fuzzer(method, fuzzer_args: List[Any]):
     for fuzz in fuzzer_args:
         try:
-            result = method(*args)
+            result = method(*fuzzer_args)
         except Exception:
             print(f"FUZZ: {method.__name__} FAILED")
             traceback.print_exc()
@@ -35,8 +35,7 @@ if __name__ == "__main__":
                 (None, 0),
                 ("bad-argument", "error"),
                 ([], {}),
-                (int("inf"), int("inf")),
-                (float("-inf"), float("-inf")),
+                (float("inf"), float("inf")),
                 ("4l", "1i"),
                 ]
         ),
@@ -47,8 +46,8 @@ if __name__ == "__main__":
                 (None, 1.0000),
                 (None, "error-argument"),
                 (None, [None, 0]),
-                (0, {}),
-                (12, np((1, 50))),
+                (0, {})
+                
             ]
         ),
         (
