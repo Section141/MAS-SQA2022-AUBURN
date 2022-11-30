@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    runs-on: windows-11 or ubuntu-latest 
+    runs-on: ubuntu-latest 
     steps:
       - uses: actions/checkout@v3.0.2
 
