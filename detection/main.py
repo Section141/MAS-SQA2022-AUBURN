@@ -3,7 +3,7 @@ import time
 import datetime 
 import os 
 import pandas as pd
-import pyparser 
+from . import py_parser 
 import numpy as np 
 import logging
 
