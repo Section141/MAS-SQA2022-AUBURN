@@ -1,9 +1,9 @@
-import constants 
+from . import constants 
 import time 
 import datetime 
 import os 
 import pandas as pd
-import pyparser 
+from . import py_parser 
 import numpy as np 
 from . import label_perturbation_main
 
