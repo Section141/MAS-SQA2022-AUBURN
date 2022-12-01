@@ -14,26 +14,26 @@ def fuzzer(method, fuzzer_args: List[Any]):
         try:
             result = method(*fuzzer_args)
         except Exception:
-            print(f"FUZZ: {method.__name__} FAILED")
+            print(f"Fuzz: {method.__name__} Failed")
             traceback.print_exc()
         else:
-            print("FUZZ: {method.__name__} PASSED ({result})")
+            print("Fuzz: {method.__name__} Passed ({result})")
 
 
 if __name__ == "__main__":
-    fuzz_list = [
+    fuzzer_list = [
         (
             generateAttack, [
                 (None,0),
                 (1, 22),
                 ([], {}),
                 (1.23, 4.56),
-                ("string", "bad-name"),
+                ("string", "SQA"),
             ]
         ), (
                 getDevEmailForCommit, [
                 (None, 0),
-                ("bad-argument", "error"),
+                ("workshop", "error"),
                 ([], {}),
                 (float("inf"), float("inf")),
                 ("4l", "1i"),
@@ -64,12 +64,12 @@ if __name__ == "__main__":
             label_flip_perturbation, [
                 (0, 0, None,),
                 (None, None, 0,),
-                ("doesnt", "matter", 1.0,),
+                ("summer", "winter", 1.0,),
                 (float("-inf"), float("inf"), [],),
                 ([], [], {},),
-                ([], [], "bad-model-name",),
+                ([], [], "break",),
             ]
         )
     ]
-    for fuzz , fuzzer_args in fuzz_list:
-        fuzzer(fuzz, fuzzer_args)
+    for fuzz , fa in fuzzer_list:
+        fuzzer(fuzz, fa)
