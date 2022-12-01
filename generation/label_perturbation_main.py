@@ -7,11 +7,6 @@ from generation import attack_model
 from . import random_label_perturbation
 from . import loss_based_label_perturbation
 from . import probability_based_label_perturbation
-from matplotlib import pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-from scipy import stats
-from . import cliffsDelta
-
 
 
 def giveTimeStamp():
