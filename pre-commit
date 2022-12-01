@@ -41,7 +41,7 @@ EOF
 	exit 1
 fi
 
-bandit **/*.py -r -a file -f csv -o vulnerabilities.csv
+bandit **/*.py -r -a file -f csv -o weakness.csv
 if [ $? -eq 0 ]; then
 	echo "bandit found no vulnerabilities"
 else
