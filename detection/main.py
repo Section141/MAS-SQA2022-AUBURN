@@ -17,14 +17,11 @@ def giveTimeStamp():
   return strToret
   
 def get_test_details(test_script):
-    log = logger.getConfiguredLogger()
-    # Logging get test details input
-    log.info(f"file:detection/main.py::function:get_test_details::inputs::test-script:{test_script}")
     test_name_list = []
     test_with_assert_list = []
-    py_tree = pyparser.getPythonParseObject(test_script)
+    py_tree = py_parser.getPythonParseObject(test_script)
 #     print(test_script)
-    func_assert_parameter_list  = pyparser.getTestNames( py_tree ) 
+    func_assert_parameter_list  = py_parser.getTestNames( py_tree ) 
     for func_ in func_assert_parameter_list:
 #         print("###############")
 #         print(func_) 
@@ -34,22 +31,14 @@ def get_test_details(test_script):
         if (len(func_) > 2 ):
             the_assert_tup = (test_script, func_[0], tuple([e for e in func_[3]]))
 #             print(the_assert_tup)
-            test_with_assert_list.append( the_assert_tup )
-
-
-    # Logging get test details results
-    log.info(f"file:detection/main.py::function:get_test_details::results::test-list:{test_name_list}::test-assert-list:{test_with_assert_list}")        
+            test_with_assert_list.append( the_assert_tup )   
     return test_name_list, test_with_assert_list
 
 
 def checkClassificationAlgoTest(test_script):
-    log = logger.getConfiguredLogger()
     print("algo check: ", test_script)
-    #log for algorithm test input
-    log.info(f"file:detection/main.py::function:checkClassificationAlgoTest::inputs::test-script:{test_script}")
-    py_tree = pyparser.getPythonParseObject(test_script)
-    classification_algo_list = pyparser.getClassificationAlgoNames( py_tree ) 
-    log.info(f"file:detection/main.py::function:checkClassificationAlgoTest::results::test-result:{classification_algo_list}")
+    py_tree = py_parser.getPythonParseObject(test_script)
+    classification_algo_list = py_parser.getClassificationAlgoNames( py_tree )     
     if len(classification_algo_list) > 0:
         return 0
     else:
@@ -57,14 +46,9 @@ def checkClassificationAlgoTest(test_script):
   
   
 def checkAccuracyTest(test_script):
-    log = logger.getConfiguredLogger()
-    print("metric check: ", test_script)
-    # Logging accuracy test input
-    log.info(f"file:detection/main.py::function:checkAccuracyTest::inputs::test-script:{test_script}")
-    py_tree = pyparser.getPythonParseObject(test_script)
-    metric_list = pyparser.getMetricNames( py_tree ) 
-     # Logging accuracy test result
-    log.info(f"file:detection/main.py::function:checkAccuracyTest::results::test-result:{metric_list}")
+    print("metric check: ", test_script)   
+    py_tree = py_parser.getPythonParseObject(test_script)
+    metric_list = py_parser.getMetricNames( py_tree ) 
     if len(metric_list) > 0:
         return 0
     else:
@@ -72,19 +56,14 @@ def checkAccuracyTest(test_script):
     
     
 def chackAttackTest(test_script, assert_list):
-    log = logger.getConfiguredLogger()
     attack_check = []
     print("attack check: ", test_script)
-    # Logging attack test inputs
-    log.info(f"file:detection/main.py::function:checkAttackTest::inputs::test-script:{test_script}::assert-list:{assert_list}")
-    py_tree = pyparser.getPythonParseObject(test_script)
-    metric_check_list = pyparser.getmetricLHSNames( py_tree )
+    py_tree = py_parser.getPythonParseObject(test_script)
+    metric_check_list = py_parser.getmetricLHSNames( py_tree )
     for item in metric_check_list:
         for assert_item in assert_list:
             if item in assert_item[2]:
                 attack_check.append(item)
-    # Logging attack test result
-    log.info(f"file:detection/main.py::function:checkAttackTest::results::test-result:{attack_check}")
 
     if len(attack_check) > 1:
         return 0
@@ -133,7 +112,7 @@ def runDetectionTest(inp_dir, test_output_csv, test_assert_output_csv, flag_outp
      flag_df = flag_df.drop('FLAG_COUNT', axis=1)
      flag_df.to_csv(flag_output_csv ,index=False, encoding= constants.UTF_ENCODING)  
     except Exception :
-        logger.error(f"runDetectionTest({inp_dir}, {test_output_csv},{test_assert_output_csv},{flag_output_csv}) FAILURE: - {Exception}")
+        logger.error(f"runDetectionTest({inp_dir}, {test_output_csv},{test_assert_output_csv},{flag_output_csv}) FAILED: - {Exception}")
         raise Exception
 
 def runDetectionTestModelzoo(inp_dir, test_output_csv, test_assert_output_csv, flag_output_csv):
