@@ -7,6 +7,11 @@ from . import py_parser
 import numpy as np 
 from . import label_perturbation_main
 
+import logging
+
+logging.basicConfig(filename="logger.log", level=logging.DEBUG)
+logger = logging.getLogger("main")
+
 
 def giveTimeStamp():
   tsObj = time.time()
@@ -35,29 +40,33 @@ def generateUnitTest(algo, attack_type):
 
 
 def generateAttack(inp_dir, delta):
-    if os.path.exists(inp_dir):
-        algo_df = pd.read_csv(inp_dir)
-    else:
-        return
-    for index, row in algo_df.iterrows():
-        row['ALGO_NAME'] = row['ALGO_NAME'].replace('[', '')
-        row['ALGO_NAME'] = row['ALGO_NAME'].replace(']', '')
-        algo_list = row['ALGO_NAME'].split(',')
-        for algo in algo_list:
-            algo = algo.replace('\'', '')
-            algo = algo.replace(' ', '')
-            initial_auc, random_auc, loss_auc, prob_auc = label_perturbation_main.run_label_perturbation(algo)
-            random_diff = random_auc[0] -  initial_auc[0]
-            loss_diff = loss_auc[0] -  initial_auc[0]
-            prob_diff = prob_auc[0] -  initial_auc[0]
-            if (random_diff < delta): 
-                generateUnitTest(algo, 'random')
-            elif (loss_diff < delta): 
-                generateUnitTest(algo, 'loss')
-            elif (prob_diff < delta): 
-                generateUnitTest(algo, 'prob')
-                
-
+    logger.info(f"generateAttack({inp_dir}, {delta})")
+    try:
+     if os.path.exists(inp_dir):
+         algo_df = pd.read_csv(inp_dir)
+     else:
+         return
+     for index, row in algo_df.iterrows():
+         row['ALGO_NAME'] = row['ALGO_NAME'].replace('[', '')
+         row['ALGO_NAME'] = row['ALGO_NAME'].replace(']', '')
+         algo_list = row['ALGO_NAME'].split(',')
+         for algo in algo_list:
+             algo = algo.replace('\'', '')
+             algo = algo.replace(' ', '')
+             initial_auc, random_auc, loss_auc, prob_auc = label_perturbation_main.run_label_perturbation(algo)
+             random_diff = random_auc[0] -  initial_auc[0]
+             loss_diff = loss_auc[0] -  initial_auc[0]
+             prob_diff = prob_auc[0] -  initial_auc[0]
+             if (random_diff < delta): 
+                 generateUnitTest(algo, 'random')
+             elif (loss_diff < delta): 
+                 generateUnitTest(algo, 'loss')
+             elif (prob_diff < delta): 
+                 generateUnitTest(algo, 'prob')
+    except Exception:
+        logger.error(f"generateAttack({inp_dir}, {delta}) FAILED {Exception}")            
+        raise Exception
+        
 if __name__=='__main__': 
 
     delta = 0.5
@@ -93,3 +102,4 @@ if __name__=='__main__':
     time_diff = round( (t2 - t1 ) / 60, 5) 
     print('Duration: {} minutes'.format(time_diff) )
     print('*'*100 )
+
