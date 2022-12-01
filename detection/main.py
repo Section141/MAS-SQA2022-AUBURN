@@ -5,6 +5,10 @@ import os
 import pandas as pd
 import pyparser 
 import numpy as np 
+import logging
+
+logging.basicConfig(filename="logger.log", level=logging.INFO)
+logger = logging.getLogger("detection/main")
 
 
 def giveTimeStamp():
@@ -13,6 +17,9 @@ def giveTimeStamp():
   return strToret
   
 def get_test_details(test_script):
+    log = logger.getConfiguredLogger()
+    # Logging get test details input
+    log.info(f"file:detection/main.py::function:get_test_details::inputs::test-script:{test_script}")
     test_name_list = []
     test_with_assert_list = []
     py_tree = pyparser.getPythonParseObject(test_script)
@@ -28,14 +35,21 @@ def get_test_details(test_script):
             the_assert_tup = (test_script, func_[0], tuple([e for e in func_[3]]))
 #             print(the_assert_tup)
             test_with_assert_list.append( the_assert_tup )
-            
+
+
+    # Logging get test details results
+    log.info(f"file:detection/main.py::function:get_test_details::results::test-list:{test_name_list}::test-assert-list:{test_with_assert_list}")        
     return test_name_list, test_with_assert_list
 
 
 def checkClassificationAlgoTest(test_script):
+    log = logger.getConfiguredLogger()
     print("algo check: ", test_script)
+    #log for algorithm test input
+    log.info(f"file:detection/main.py::function:checkClassificationAlgoTest::inputs::test-script:{test_script}")
     py_tree = pyparser.getPythonParseObject(test_script)
     classification_algo_list = pyparser.getClassificationAlgoNames( py_tree ) 
+    log.info(f"file:detection/main.py::function:checkClassificationAlgoTest::results::test-result:{classification_algo_list}")
     if len(classification_algo_list) > 0:
         return 0
     else:
@@ -43,9 +57,14 @@ def checkClassificationAlgoTest(test_script):
   
   
 def checkAccuracyTest(test_script):
+    log = logger.getConfiguredLogger()
     print("metric check: ", test_script)
+    # Logging accuracy test input
+    log.info(f"file:detection/main.py::function:checkAccuracyTest::inputs::test-script:{test_script}")
     py_tree = pyparser.getPythonParseObject(test_script)
     metric_list = pyparser.getMetricNames( py_tree ) 
+     # Logging accuracy test result
+    log.info(f"file:detection/main.py::function:checkAccuracyTest::results::test-result:{metric_list}")
     if len(metric_list) > 0:
         return 0
     else:
@@ -53,59 +72,69 @@ def checkAccuracyTest(test_script):
     
     
 def chackAttackTest(test_script, assert_list):
+    log = logger.getConfiguredLogger()
     attack_check = []
     print("attack check: ", test_script)
+    # Logging attack test inputs
+    log.info(f"file:detection/main.py::function:checkAttackTest::inputs::test-script:{test_script}::assert-list:{assert_list}")
     py_tree = pyparser.getPythonParseObject(test_script)
     metric_check_list = pyparser.getmetricLHSNames( py_tree )
     for item in metric_check_list:
         for assert_item in assert_list:
             if item in assert_item[2]:
                 attack_check.append(item)
+    # Logging attack test result
+    log.info(f"file:detection/main.py::function:checkAttackTest::results::test-result:{attack_check}")
+
     if len(attack_check) > 1:
         return 0
     else:
         return 1
 
 def runDetectionTest(inp_dir, test_output_csv, test_assert_output_csv, flag_output_csv):
-    flag_list = []
-    df_test_list = []
-    df_test_with_assert_list = []
-    for root_, dirnames, filenames in os.walk(inp_dir, topdown=False):
-        NO_TEST = 1
-        NO_ALGO = 1
-        NO_ACCURACY = 1
-        NO_ATTACK_CHECK = 1
-        if (len(root_.split('/')) > 4): 
-            repo = inp_dir + "/" + root_.split('/')[5] 
-            for file_ in filenames:
-                full_path_file = os.path.join(root_, file_) 
-                if(os.path.exists(full_path_file)):
-                    if ((file_.endswith('test.py')) or (file_.endswith('tests.py')) or (file_.endswith('Test.py')) or (file_.startswith('test')) or (file_.startswith('Test')))  :
-                        temp_test_list, temp_test_with_assert_list = get_test_details(full_path_file)
-                        df_test_list = df_test_list + temp_test_list 
-                        df_test_with_assert_list = df_test_with_assert_list + temp_test_with_assert_list
-                        if (len(temp_test_list) > 0) :
-                            NO_TEST = 0
-                            if (NO_ALGO == 1):
-                                NO_ALGO = checkClassificationAlgoTest(full_path_file)
-                            if (NO_ACCURACY == 1 and NO_ALGO == 0):
-                                NO_ACCURACY = checkAccuracyTest(full_path_file)
-                            if (NO_ATTACK_CHECK == 1 and NO_ACCURACY == 0):
-                                NO_ATTACK_CHECK = chackAttackTest(full_path_file, temp_test_with_assert_list)
-        flag_count = NO_TEST + NO_ALGO + NO_ACCURACY + NO_ATTACK_CHECK
-        flag_tup = (repo, NO_TEST, NO_ALGO, NO_ACCURACY, NO_ATTACK_CHECK, flag_count)
-        flag_list.append(flag_tup)
-    if (len(df_test_list) > 0):
-        full_test_df = pd.DataFrame( df_test_list )
-        full_test_df.to_csv(test_output_csv, header= ["ML_SCRIPT","TEST_NAME"], index=False, encoding= constants.UTF_ENCODING)
-    if (len(df_test_with_assert_list) > 0):
-        full_test_with_assert_df = pd.DataFrame( df_test_with_assert_list ) 
-        full_test_with_assert_df.to_csv(test_assert_output_csv, header= ["ML_SCRIPT","TEST_NAME","PARAMETER"],index=False, encoding= constants.UTF_ENCODING)  
-    flag_df = pd.DataFrame( flag_list, columns= ["PROJECT","NO_TEST","NO_ALGO", "NO_ACCURACY", "NO_ATTACK_CHECK", "FLAG_COUNT"] ) 
-    flag_df = flag_df.sort_values('FLAG_COUNT').drop_duplicates('PROJECT', keep='first')
-    flag_df = flag_df.drop('FLAG_COUNT', axis=1)
-    flag_df.to_csv(flag_output_csv ,index=False, encoding= constants.UTF_ENCODING)  
-
+    logger.info(f"runDetectionTest({inp_dir}, {test_output_csv},{test_assert_output_csv},{flag_output_csv})")
+    try:
+     flag_list = []
+     df_test_list = []
+     df_test_with_assert_list = []
+     for root_, dirnames, filenames in os.walk(inp_dir, topdown=False):
+         NO_TEST = 1
+         NO_ALGO = 1
+         NO_ACCURACY = 1
+         NO_ATTACK_CHECK = 1
+         if (len(root_.split('/')) > 4): 
+             repo = inp_dir + "/" + root_.split('/')[5] 
+             for file_ in filenames:
+                 full_path_file = os.path.join(root_, file_) 
+                 if(os.path.exists(full_path_file)):
+                     if ((file_.endswith('test.py')) or (file_.endswith('tests.py')) or (file_.endswith('Test.py')) or (file_.startswith('test')) or (file_.startswith('Test')))  :
+                         temp_test_list, temp_test_with_assert_list = get_test_details(full_path_file)
+                         df_test_list = df_test_list + temp_test_list 
+                         df_test_with_assert_list = df_test_with_assert_list + temp_test_with_assert_list
+                         if (len(temp_test_list) > 0) :
+                             NO_TEST = 0
+                             if (NO_ALGO == 1):
+                                 NO_ALGO = checkClassificationAlgoTest(full_path_file)
+                             if (NO_ACCURACY == 1 and NO_ALGO == 0):
+                                 NO_ACCURACY = checkAccuracyTest(full_path_file)
+                             if (NO_ATTACK_CHECK == 1 and NO_ACCURACY == 0):
+                                 NO_ATTACK_CHECK = chackAttackTest(full_path_file, temp_test_with_assert_list)
+         flag_count = NO_TEST + NO_ALGO + NO_ACCURACY + NO_ATTACK_CHECK
+         flag_tup = (repo, NO_TEST, NO_ALGO, NO_ACCURACY, NO_ATTACK_CHECK, flag_count)
+         flag_list.append(flag_tup)
+     if (len(df_test_list) > 0):
+         full_test_df = pd.DataFrame( df_test_list )
+         full_test_df.to_csv(test_output_csv, header= ["ML_SCRIPT","TEST_NAME"], index=False, encoding= constants.UTF_ENCODING)
+     if (len(df_test_with_assert_list) > 0):
+         full_test_with_assert_df = pd.DataFrame( df_test_with_assert_list ) 
+         full_test_with_assert_df.to_csv(test_assert_output_csv, header= ["ML_SCRIPT","TEST_NAME","PARAMETER"],index=False, encoding= constants.UTF_ENCODING)  
+     flag_df = pd.DataFrame( flag_list, columns= ["PROJECT","NO_TEST","NO_ALGO", "NO_ACCURACY", "NO_ATTACK_CHECK", "FLAG_COUNT"] ) 
+     flag_df = flag_df.sort_values('FLAG_COUNT').drop_duplicates('PROJECT', keep='first')
+     flag_df = flag_df.drop('FLAG_COUNT', axis=1)
+     flag_df.to_csv(flag_output_csv ,index=False, encoding= constants.UTF_ENCODING)  
+    except Exception :
+        logger.error(f"runDetectionTest({inp_dir}, {test_output_csv},{test_assert_output_csv},{flag_output_csv}) FAILURE: - {Exception}")
+        raise Exception
 
 def runDetectionTestModelzoo(inp_dir, test_output_csv, test_assert_output_csv, flag_output_csv):
     flag_list = []
