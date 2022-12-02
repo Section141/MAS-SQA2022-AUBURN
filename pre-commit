@@ -41,11 +41,11 @@ EOF
 	exit 1
 fi
 
-bandit **/*.py -r -a file -f csv -o weakness.csv
+bandit **/*.py -r -a file -f csv -o bandit_weakness.csv
 if [ $? -eq 0 ]; then
-	echo "bandit found no vulnerabilities"
+	print "No security weakness found"
 else
-	echo "bandit found vulnerabilities"
+	print "Security weakness found!"
 fi
 
 # If there are whitespace errors, print the offending file names and fail.
