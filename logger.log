@@ -1,0 +1,11 @@
+DEBUG:matplotlib:matplotlib data path: C:\Users\mural\AppData\Local\Programs\Python\Python310\lib\site-packages\matplotlib\mpl-data
+DEBUG:matplotlib:CONFIGDIR=C:\Users\mural\.matplotlib
+DEBUG:matplotlib:interactive is False
+DEBUG:matplotlib:platform is win32
+DEBUG:matplotlib:CACHEDIR=C:\Users\mural\.matplotlib
+DEBUG:matplotlib.font_manager:Using fontManager instance from C:\Users\mural\.matplotlib\fontlist-v330.json
+DEBUG:tensorflow:Falling back to TensorFlow client; we recommended you install the Cloud TPU client directly with pip install cloud-tpu-client.
+DEBUG:h5py._conv:Creating converter from 7 to 5
+DEBUG:h5py._conv:Creating converter from 5 to 7
+DEBUG:h5py._conv:Creating converter from 7 to 5
+DEBUG:h5py._conv:Creating converter from 5 to 7
